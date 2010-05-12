@@ -4,7 +4,6 @@ enable_corba
 
 using_library "opencv"
 using_library "camera_firewire"
-import_types_from "base"
 import_types_from "base/samples/frame.h"
 
 task_context 'CameraTask' do
