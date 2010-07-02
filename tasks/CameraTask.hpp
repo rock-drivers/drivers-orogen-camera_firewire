@@ -2,7 +2,11 @@
 #define CAMERA_FIREWIRE_CAMERATASK_TASK_HPP
 
 #include "camera_firewire/CameraTaskBase.hpp"
-
+#include <libraw1394/raw1394.h>
+#include "camera_firewire/CamFireWire.h"
+#include <highgui.h>
+#include <cv.h>
+//#include <dc1394/camera.h>
 
 namespace RTT
 {
@@ -23,6 +27,15 @@ namespace camera_firewire {
 
         RTT::NonPeriodicActivity* getNonPeriodicActivity();
 
+	bool stereo;
+	base::samples::frame::Frame left_frame;
+        base::samples::frame::Frame right_frame;
+
+    camera::CamFireWire left_camera;
+    camera::CamFireWire right_camera;
+	
+
+
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the
          * component will stay in PreOperational. Otherwise, it goes into
@@ -36,14 +49,14 @@ namespace camera_firewire {
          *     ...
          *   end
          */
-        // bool configureHook();
+         bool configureHook();
 
         /** This hook is called by Orocos when the state machine transitions
          * from Stopped to Running. If it returns false, then the component will
          * stay in Stopped. Otherwise, it goes into Running and updateHook()
          * will be called.
          */
-        // bool startHook();
+         bool startHook();
 
         /** This hook is called by Orocos when the component is in the Running
          * state, at each activity step. Here, the activity gives the "ticks"
@@ -61,7 +74,7 @@ namespace camera_firewire {
          * called before starting it again.
          *
          */
-        // void updateHook();
+         void updateHook();
         
 
         /** This hook is called by Orocos when the component is in the
@@ -75,13 +88,13 @@ namespace camera_firewire {
         /** This hook is called by Orocos when the state machine transitions
          * from Running to Stopped after stop() has been called.
          */
-        // void stopHook();
+         void stopHook();
 
         /** This hook is called by Orocos when the state machine transitions
          * from Stopped to PreOperational, requiring the call to configureHook()
          * before calling start() again.
          */
-        // void cleanupHook();
+         void cleanupHook();
     };
 }
 
