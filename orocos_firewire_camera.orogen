@@ -4,12 +4,16 @@ enable_corba
 
 using_library "opencv"
 using_library "camera_firewire"
+using_library "camera_interface"
 import_types_from "base"
 
 task_context 'CameraTask' do
     needs_configuration
    
-    output_port 'frame', ro_ptr('base::samples::frame::Frame')
+    output_port 'left_frame', 'base::samples::frame::Frame'
+
+    output_port 'right_frame', 'base::samples::frame::Frame'
+
     
     property('camera_id', 'string','105984').
     	doc 'unique camerea id'
