@@ -177,6 +177,7 @@ void CameraTask::updateHook()
 	cvWaitKey(2);
 	_left_frame.write(left_frame);
 	_right_frame.write(right_frame);
+        left_camera.grab(SingleFrame, 20);
 
 	
  }
