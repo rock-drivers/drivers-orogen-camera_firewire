@@ -42,9 +42,9 @@ deployment "camera_test" do
         sequential
 
     camera_task = task("camera", 'CameraTask').
-        periodic(0.01)
-    camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
-        periodic(0.03)
+        periodic(0.016)
+    #camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
+    #    periodic(0.03)
 
     add_default_logger
     if !corba_enabled?
