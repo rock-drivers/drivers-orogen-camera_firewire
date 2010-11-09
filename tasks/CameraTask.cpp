@@ -165,6 +165,7 @@ return true;
  }
  bool CameraTask::startHook()
  {
+     getActivity()->trigger();
    
 	return true;
  }
@@ -205,6 +206,7 @@ lastUpdateTime = t1;
 std::cerr << "leaving updatedHook at: " << t1 << " ms\n";
 
 	
+     getActivity()->trigger();
  }
 
 // void CameraTask::errorHook()
