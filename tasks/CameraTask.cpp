@@ -1,4 +1,5 @@
 #include "CameraTask.hpp"
+#include <dc1394/dc1394.h>
 
 #include <rtt/NonPeriodicActivity.hpp>
 #include "../../../drivers/camera_interface/src/CamTypes.h"

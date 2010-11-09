@@ -2,10 +2,7 @@
 #define CAMERA_FIREWIRE_CAMERATASK_TASK_HPP
 
 #include "camera_firewire/CameraTaskBase.hpp"
-#include <libraw1394/raw1394.h>
 #include "camera_firewire/CamFireWire.h"
-#include <highgui.h>
-#include <cv.h>
 //#include <dc1394/camera.h>
 
 namespace RTT
