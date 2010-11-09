@@ -1,5 +1,3 @@
-#include <highgui.h>
-#include <cv.h>
 #include "CameraTask.hpp"
 
 #include <rtt/NonPeriodicActivity.hpp>
@@ -13,7 +11,6 @@
 using namespace camera_firewire;
 using namespace camera;
 using namespace base::samples::frame;
-using namespace cv;
 
 RTT::NonPeriodicActivity* CameraTask::getNonPeriodicActivity()
 { return dynamic_cast< RTT::NonPeriodicActivity* >(getActivity().get()); }
@@ -106,7 +103,6 @@ CameraTask::CameraTask(std::string const& name)
 
     std::cerr << "c" << std::endl;
 
-    cvWaitKey(100);
     std::cerr << "cam.isOpen = " << left_cam.isOpen() << std::endl;
     frame_size_t fs;
   
@@ -119,7 +115,6 @@ CameraTask::CameraTask(std::string const& name)
 
 std::cerr << "b" << std::endl;
 
-    cvWaitKey(100);
 
     left_cam.setFrameSettings(fs, MODE_BAYER_RGGB, 8, false);
     left_cam.setAttrib(int_attrib::GainValue, 16);
@@ -144,7 +139,6 @@ left_cam.setAttrib(enum_attrib::ExposureModeToAuto);
 right_cam.setAttrib(enum_attrib::ExposureModeToAuto);
     }
 
-    cvWaitKey(50);
     timeval ts, te, tcurr, tprev;
     
     gettimeofday(&ts,NULL);
@@ -163,7 +157,6 @@ right_cam.setAttrib(enum_attrib::ExposureModeToAuto);
    //left_cam.retrieveFrame(left_frame,0);
    left_cam.grab(SingleFrame, 20);
    //left_cam.retrieveFrame(left_frame,0);
-   cvWaitKey(100);
 	  //  if(stereo)   right_cam.grab(camera::Continuously, 20);
      
 usleep(1000000);
