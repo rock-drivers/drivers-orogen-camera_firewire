@@ -5,6 +5,8 @@ enable_corba
 using_library "opencv"
 using_library "camera_firewire"
 using_library "camera_interface"
+using_task_library "canserial"
+using_task_library "can"
 import_types_from "base"
 
 task_context 'CameraTask' do
@@ -29,7 +31,16 @@ task_context 'CameraViewerTask' do
     input_port 'frame', ro_ptr('base::samples::frame::Frame')
 end
 
-deployment "camera" do
+deployment "camera_test" do
+
+    can     = task('can', "can::Task").
+        periodic(0.001).
+        realtime.
+        priority(85)
+
+    canserial = task("canserial", "canserial::Task").
+        sequential
+
     camera_task = task("camera", 'CameraTask').
         periodic(0.01)
     camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
