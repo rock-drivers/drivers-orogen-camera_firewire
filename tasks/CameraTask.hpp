@@ -30,6 +30,7 @@ namespace camera_firewire {
 	bool stereo;
 	base::samples::frame::Frame left_frame;
         base::samples::frame::Frame right_frame;
+	double lastUpdateTime;
 
     camera::CamFireWire left_camera;
     camera::CamFireWire right_camera;

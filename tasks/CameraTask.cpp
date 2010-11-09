@@ -13,6 +13,7 @@
 using namespace camera_firewire;
 using namespace camera;
 using namespace base::samples::frame;
+using namespace cv;
 
 RTT::NonPeriodicActivity* CameraTask::getNonPeriodicActivity()
 { return dynamic_cast< RTT::NonPeriodicActivity* >(getActivity().get()); }
@@ -111,10 +112,10 @@ CameraTask::CameraTask(std::string const& name)
   
     fs.height = 480;
     fs.width = 640; //fs.width = 752;
-    cv::namedWindow("left",1);
-    if(stereo) cv::namedWindow("right",1);
-    cvMoveWindow("left",10,10);
-    if(stereo) cvMoveWindow("right",800,10);
+    //cv::namedWindow("left",1);
+    //if(stereo) cv::namedWindow("right",1);
+    //cvMoveWindow("left",10,10);
+    //if(stereo) cvMoveWindow("right",800,10);
 
 std::cerr << "b" << std::endl;
 
@@ -123,24 +124,24 @@ std::cerr << "b" << std::endl;
     left_cam.setFrameSettings(fs, MODE_BAYER_RGGB, 8, false);
     left_cam.setAttrib(int_attrib::GainValue, 16);
     left_cam.setAttrib(enum_attrib::GammaToOn);
-    left_cam.setAttrib(int_attrib::ExposureValue, 90);
+    left_cam.setAttrib(int_attrib::ExposureValue, 150);
     left_cam.setAttrib(int_attrib::WhitebalValueBlue, 580);
     left_cam.setAttrib(int_attrib::WhitebalValueRed, 650);
     left_cam.setAttrib(int_attrib::AcquisitionFrameCount, 200);
-    left_cam.setAttrib(enum_attrib::ExposureModeToManual);
-//left_cam.setAttrib(enum_attrib::ExposureModeToAuto);
+//    left_cam.setAttrib(enum_attrib::ExposureModeToManual);
+left_cam.setAttrib(enum_attrib::ExposureModeToAuto);
 
     if(stereo)
     {
         right_cam.setFrameSettings(fs, MODE_BAYER_RGGB, 8, false);
         right_cam.setAttrib(int_attrib::GainValue, 16);
         right_cam.setAttrib(enum_attrib::GammaToOn);
-        right_cam.setAttrib(int_attrib::ExposureValue,90);
+        right_cam.setAttrib(int_attrib::ExposureValue,150);
         right_cam.setAttrib(int_attrib::WhitebalValueBlue, 580);
         right_cam.setAttrib(int_attrib::WhitebalValueRed, 650);
 	right_cam.setAttrib(int_attrib::AcquisitionFrameCount, 200);
-	right_cam.setAttrib(enum_attrib::ExposureModeToManual);
-
+//	right_cam.setAttrib(enum_attrib::ExposureModeToManual);
+right_cam.setAttrib(enum_attrib::ExposureModeToAuto);
     }
 
     cvWaitKey(50);
@@ -149,35 +150,66 @@ std::cerr << "b" << std::endl;
     gettimeofday(&ts,NULL);
     gettimeofday(&tcurr,NULL);
 
-    left_cam.setAttrib(camera::double_attrib::FrameRate, 30);
-    if(stereo) right_cam.setAttrib(camera::double_attrib::FrameRate, 30);
+    lastUpdateTime = 0;
+
+    left_cam.setAttrib(camera::double_attrib::FrameRate, 60);
+    if(stereo) right_cam.setAttrib(camera::double_attrib::FrameRate, 60);
 
     
     left_camera.clearBuffer();
     if(stereo) right_camera.clearBuffer();
 
+
+   //left_cam.retrieveFrame(left_frame,0);
    left_cam.grab(SingleFrame, 20);
+   //left_cam.retrieveFrame(left_frame,0);
+   cvWaitKey(100);
 	  //  if(stereo)   right_cam.grab(camera::Continuously, 20);
-     return true;
+     
+usleep(1000000);
+
+return true;
  }
  bool CameraTask::startHook()
  {
-     return true;
+   
+	return true;
  }
+
+
 
 void CameraTask::updateHook()
  {
+            timeval tim;
+             gettimeofday(&tim, NULL);
+             double t1=tim.tv_sec*1000.0+(tim.tv_usec/1000.0) -1.285582e12;
+std::cerr << "now inside updateHook, time: " << t1 << " ms\n";
 
-	std::cerr << "retrieving..." << std::endl;
+std::cerr << "fps estimate = " << 1.0/(t1/1000.0-lastUpdateTime/1000.0) << " fps\n";
+lastUpdateTime = t1;
+
+	
+        if(stereo) std::cerr << "retrieving right..." << std::endl;
+        if(stereo) right_camera.retrieveFrame(right_frame,0); 
+
+	std::cerr << "retrieving left..." << std::endl;
         cvWaitKey(1);
 	left_camera.retrieveFrame(left_frame,0);
-	if(stereo) right_camera.retrieveFrame(right_frame,0);
-	imshow("left",left_frame.convertToCvMat());
-	if(stereo) imshow("right",right_frame.convertToCvMat());
-	cvWaitKey(2);
+	//if(stereo) std::cerr << "retrieving right..." << std::endl;
+	//if(stereo) right_camera.retrieveFrame(right_frame,0);
+	std::cerr << "showing image..." << std::endl;
+	//imshow("left",left_frame.convertToCvMat());
+	//if(stereo) imshow("right",right_frame.convertToCvMat());
+	//cvWaitKey(2);
+	std::cerr << "writing frame..." << std::endl;
 	_left_frame.write(left_frame);
-	_right_frame.write(right_frame);
-        left_camera.grab(SingleFrame, 20);
+	if(stereo)_right_frame.write(right_frame);
+        //left_camera.grab(SingleFrame, 20);
+	//cvWaitKey(10);
+
+   gettimeofday(&tim, NULL);
+             t1=tim.tv_sec*1000.0+(tim.tv_usec/1000.0) -1.285582e12;
+std::cerr << "leaving updatedHook at: " << t1 << " ms\n";
 
 	
  }
