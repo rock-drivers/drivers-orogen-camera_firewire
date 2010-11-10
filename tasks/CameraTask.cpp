@@ -4,7 +4,7 @@
 #include <rtt/NonPeriodicActivity.hpp>
 #include "../../../drivers/camera_interface/src/CamTypes.h"
 
-
+#include <opencv/highgui.h>
 
 
 
