@@ -3,7 +3,6 @@
 
 #include "camera_firewire/CameraTaskBase.hpp"
 #include "camera_firewire/CamFireWire.h"
-//#include <dc1394/camera.h>
 
 namespace RTT
 {
@@ -16,8 +15,6 @@ namespace camera_firewire {
     {
 	friend class CameraTaskBase;
     protected:
-    
-    
 
     public:
         CameraTask(std::string const& name = "camera_firewire::CameraTask");
@@ -29,8 +26,8 @@ namespace camera_firewire {
         base::samples::frame::Frame right_frame;
 	double lastUpdateTime;
 
-    camera::CamFireWire left_camera;
-    camera::CamFireWire right_camera;
+        camera::CamFireWire left_camera;
+        camera::CamFireWire right_camera;
 	
 
 
