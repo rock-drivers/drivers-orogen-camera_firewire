@@ -18,16 +18,11 @@ namespace camera_firewire {
 
     public:
         CameraTask(std::string const& name = "camera_firewire::CameraTask");
-
         RTT::NonPeriodicActivity* getNonPeriodicActivity();
+        base::samples::frame::Frame frame;
+		double lastUpdateTime;
 
-	bool stereo;
-	base::samples::frame::Frame left_frame;
-        base::samples::frame::Frame right_frame;
-	double lastUpdateTime;
-
-        camera::CamFireWire left_camera;
-        camera::CamFireWire right_camera;
+        camera::CamFireWire camera;
 	
 
 

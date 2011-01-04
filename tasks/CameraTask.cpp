@@ -21,86 +21,52 @@ CameraTask::CameraTask(std::string const& name)
 
 bool CameraTask::configureHook()
 {
-    stereo = true;
     dc1394_t *dc_device;
 
     //frame_size_t size(752,480);
     frame_size_t size(640,480);
     
-    left_frame.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
-    if(stereo) right_frame.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
-
+	frame.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
+	
     // create a new firewire bus device
     dc_device = dc1394_new();
     
-    left_camera.setDevice(dc_device);
-    left_camera.cleanup();
+	camera.setDevice(dc_device);
+    camera.cleanup();
     
-    right_camera.setDevice(dc_device);
-
-    camera::CamInterface &left_cam = left_camera;
-    camera::CamInterface &right_cam = right_camera;
+    camera::CamInterface &cam = camera;
 
     //find and display all cameras
     std::vector<CamInfo> cam_infos ;
-    left_cam.listCameras(cam_infos);
-    left_cam.open(cam_infos[0], Master);
-    left_cam.setAttrib(camera::int_attrib::IsoSpeed, 400);
-    left_cam.setAttrib(camera::double_attrib::FrameRate, 15);        
-
-    if(stereo) 
-    {
-        if(!right_cam.open(cam_infos[1], Monitor))
-        {
-	    left_cam.setAttrib(camera::double_attrib::FrameRate, 15);
-	    right_cam.setAttrib(camera::double_attrib::FrameRate, 15);
-	    left_cam.close();
-	    right_cam.close();
-	    left_cam.open(cam_infos[0], Master);
-	    right_cam.open(cam_infos[1], Monitor);
-	    right_cam.setAttrib(camera::int_attrib::IsoSpeed, 400);
-        }
-    }
+    cam.listCameras(cam_infos);
+    cam.open(cam_infos[0], Master);
+    cam.setAttrib(camera::int_attrib::IsoSpeed, 400);
+    cam.setAttrib(camera::double_attrib::FrameRate, 15);        
 
     frame_size_t fs;
     fs.height = 480;
     fs.width = 640; //fs.width = 752;
     
-    left_cam.setFrameSettings(fs, MODE_BAYER_RGGB, 8, false);
-    left_cam.setAttrib(int_attrib::GainValue, 16);
-    left_cam.setAttrib(enum_attrib::GammaToOn);
-    left_cam.setAttrib(int_attrib::ExposureValue, 150);
-    left_cam.setAttrib(int_attrib::WhitebalValueBlue, 580);
-    left_cam.setAttrib(int_attrib::WhitebalValueRed, 650);
-    left_cam.setAttrib(int_attrib::AcquisitionFrameCount, 200);
-    // left_cam.setAttrib(enum_attrib::ExposureModeToManual);
-    left_cam.setAttrib(enum_attrib::ExposureModeToAuto);
-
-    if(stereo)
-    {
-        right_cam.setFrameSettings(fs, MODE_BAYER_RGGB, 8, false);
-        right_cam.setAttrib(int_attrib::GainValue, 16);
-        right_cam.setAttrib(enum_attrib::GammaToOn);
-        right_cam.setAttrib(int_attrib::ExposureValue,150);
-        right_cam.setAttrib(int_attrib::WhitebalValueBlue, 580);
-        right_cam.setAttrib(int_attrib::WhitebalValueRed, 650);
-	right_cam.setAttrib(int_attrib::AcquisitionFrameCount, 200);
-        // right_cam.setAttrib(enum_attrib::ExposureModeToManual);
-        right_cam.setAttrib(enum_attrib::ExposureModeToAuto);
-    }
+    cam.setFrameSettings(fs, MODE_BAYER_RGGB, 8, false);
+    cam.setAttrib(int_attrib::GainValue, 16);
+    cam.setAttrib(enum_attrib::GammaToOn);
+    cam.setAttrib(int_attrib::ExposureValue, 150);
+    cam.setAttrib(int_attrib::WhitebalValueBlue, 580);
+    cam.setAttrib(int_attrib::WhitebalValueRed, 650);
+    cam.setAttrib(int_attrib::AcquisitionFrameCount, 200);
+    //cam.setAttrib(enum_attrib::ExposureModeToManual);
+    cam.setAttrib(enum_attrib::ExposureModeToAuto);
 
     timeval ts, te, tcurr, tprev;
     gettimeofday(&ts,NULL);
     gettimeofday(&tcurr,NULL);
     lastUpdateTime = 0;
 
-    left_cam.setAttrib(camera::double_attrib::FrameRate, 60);
-    if(stereo) right_cam.setAttrib(camera::double_attrib::FrameRate, 60);
+    cam.setAttrib(camera::double_attrib::FrameRate, 60);
 
-    left_camera.clearBuffer();
-    if(stereo) right_camera.clearBuffer();
-
-    left_cam.grab(SingleFrame, 20);
+    camera.clearBuffer();
+	
+    cam.grab(SingleFrame, 20);
        
     //usleep(1000000);
     return true;
@@ -120,10 +86,8 @@ void CameraTask::updateHook()
     std::cerr << "fps estimate = " << 1.0/(t1/1000.0-lastUpdateTime/1000.0) << " fps\n";
     lastUpdateTime = t1;
 
-    if(stereo) right_camera.retrieveFrame(right_frame,0); 
-    left_camera.retrieveFrame(left_frame,0);
-    _left_frame.write(left_frame);
-    if(stereo)_right_frame.write(right_frame);
+    camera.retrieveFrame(left_frame,0);
+    _frame.write(frame);
    
     getActivity()->trigger();
 }

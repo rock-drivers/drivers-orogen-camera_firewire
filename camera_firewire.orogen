@@ -12,9 +12,7 @@ import_types_from "base"
 task_context 'CameraTask' do
     needs_configuration
    
-    output_port 'left_frame', 'base::samples::frame::Frame'
-
-    output_port 'right_frame', 'base::samples::frame::Frame'
+    output_port 'frame', 'base::samples::frame::Frame'
 
     
     property('camera_id', 'string','105984').
