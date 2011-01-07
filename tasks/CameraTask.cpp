@@ -86,7 +86,7 @@ void CameraTask::updateHook()
     std::cerr << "fps estimate = " << 1.0/(t1/1000.0-lastUpdateTime/1000.0) << " fps\n";
     lastUpdateTime = t1;
 
-    camera.retrieveFrame(left_frame,0);
+    camera.retrieveFrame(frame,0);
     _frame.write(frame);
    
     getActivity()->trigger();
