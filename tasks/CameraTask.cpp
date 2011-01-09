@@ -3,6 +3,7 @@
 #include <rtt/NonPeriodicActivity.hpp>
 #include "../../../drivers/camera_interface/src/CamTypes.h"
 #include <opencv/highgui.h>
+#include "../../../drivers/camera_interface/src/CamInfoUtils.h"
 
 using namespace camera_firewire;
 using namespace camera;
@@ -21,6 +22,10 @@ CameraTask::CameraTask(std::string const& name)
 
 bool CameraTask::configureHook()
 {
+    
+
+    std::cerr << "requested camera id: " << _camera_id << std::endl;
+
     dc1394_t *dc_device;
 
     //frame_size_t size(752,480);
@@ -28,21 +33,34 @@ bool CameraTask::configureHook()
     
 	frame.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
 	
+    std::cerr << "creating new bus device...";
     // create a new firewire bus device
     dc_device = dc1394_new();
-    
+    std::cerr << "done." << std::endl;
+
 	camera.setDevice(dc_device);
-    camera.cleanup();
+    //camera.cleanup();
     
     camera::CamInterface &cam = camera;
 
     //find and display all cameras
     std::vector<CamInfo> cam_infos ;
     cam.listCameras(cam_infos);
-    cam.open(cam_infos[0], Master);
-    cam.setAttrib(camera::int_attrib::IsoSpeed, 400);
-    cam.setAttrib(camera::double_attrib::FrameRate, 15);        
+    showCamInfos(cam_infos);
 
+    std::string cam_id = _camera_id;
+
+    for(int i = 0 ; i<cam_infos.size() ; i++)
+    {
+      std::cerr << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id << std::endl;
+      if(cam_infos[i].unique_id == strtoul(cam_id.c_str(),NULL,0))
+        cam.open(cam_infos[i],Master);
+    }
+    std::cerr << 1;
+    cam.setAttrib(camera::int_attrib::IsoSpeed, 400);
+    
+    cam.setAttrib(camera::double_attrib::FrameRate, 15);        
+    std::cerr << 2;
     frame_size_t fs;
     fs.height = 480;
     fs.width = 640; //fs.width = 752;
@@ -56,19 +74,20 @@ bool CameraTask::configureHook()
     cam.setAttrib(int_attrib::AcquisitionFrameCount, 200);
     //cam.setAttrib(enum_attrib::ExposureModeToManual);
     cam.setAttrib(enum_attrib::ExposureModeToAuto);
-
+    std::cerr << 3;
     timeval ts, te, tcurr, tprev;
     gettimeofday(&ts,NULL);
     gettimeofday(&tcurr,NULL);
     lastUpdateTime = 0;
-
-    cam.setAttrib(camera::double_attrib::FrameRate, 60);
+    std::cerr << 4;
+    cam.setAttrib(camera::double_attrib::FrameRate, 30);
 
     camera.clearBuffer();
-	
+    std::cerr << 5;
     cam.grab(SingleFrame, 20);
        
     //usleep(1000000);
+    std::cerr << "end of configureHook" << std::endl;
     return true;
 }
 
@@ -86,7 +105,9 @@ void CameraTask::updateHook()
     std::cerr << "fps estimate = " << 1.0/(t1/1000.0-lastUpdateTime/1000.0) << " fps\n";
     lastUpdateTime = t1;
 
+    std::cerr << "retrieving...";
     camera.retrieveFrame(frame,0);
+    std::cerr << "done" << std::endl;
     _frame.write(frame);
    
     getActivity()->trigger();
