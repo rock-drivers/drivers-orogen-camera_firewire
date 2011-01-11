@@ -4,7 +4,7 @@ using_library "opencv"
 using_library "camera_firewire"
 using_library "camera_interface"
 using_task_library "canserial"
-using_task_library "can"
+using_task_library "canbus"
 import_types_from "base"
 
 task_context 'CameraTask' do
@@ -48,7 +48,7 @@ end
 
 deployment "camera_test" do
 
-    can     = task('can', "can::Task").
+    can     = task('can', "canbus::Task").
         periodic(0.001).
         realtime.
         priority(85)
