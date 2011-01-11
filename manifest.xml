@@ -9,6 +9,7 @@
   <depend package="opencv" />
   <depend package="drivers/orogen/canserial" />
   <depend package="drivers/camera_firewire"/>
+  <depend package="drivers/orogen/canbus" />
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />
