@@ -1,13 +1,13 @@
 #include "CameraViewerTask.hpp"
 
-#include <rtt/NonPeriodicActivity.hpp>
+#include <rtt/Activity.hpp>
 
 
 using namespace camera_firewire;
 
 
-RTT::NonPeriodicActivity* CameraViewerTask::getNonPeriodicActivity()
-{ return dynamic_cast< RTT::NonPeriodicActivity* >(getActivity().get()); }
+//RTT::NonPeriodicActivity* CameraViewerTask::getNonPeriodicActivity()
+//{ return dynamic_cast< RTT::NonPeriodicActivity* >(getActivity().get()); }
 
 
 CameraViewerTask::CameraViewerTask(std::string const& name, TaskCore::TaskState initial_state)

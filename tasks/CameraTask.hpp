@@ -6,7 +6,7 @@
 
 namespace RTT
 {
-    class NonPeriodicActivity;
+    class Activity;
 }
 
 
@@ -18,7 +18,7 @@ namespace camera_firewire {
 
     public:
         CameraTask(std::string const& name = "camera_firewire::CameraTask");
-        RTT::NonPeriodicActivity* getNonPeriodicActivity();
+        //RTT::Activity* getActivity();
         base::samples::frame::Frame frame;
 		double lastUpdateTime;
 

@@ -1,6 +1,6 @@
 #include "CameraTask.hpp"
 #include <dc1394/dc1394.h>
-#include <rtt/NonPeriodicActivity.hpp>
+#include <rtt/Activity.hpp>
 #include "../../../drivers/camera_interface/src/CamTypes.h"
 #include <opencv/highgui.h>
 #include "../../../drivers/camera_interface/src/CamInfoUtils.h"
@@ -9,8 +9,8 @@ using namespace camera_firewire;
 using namespace camera;
 using namespace base::samples::frame;
 
-RTT::NonPeriodicActivity* CameraTask::getNonPeriodicActivity()
-{ return dynamic_cast< RTT::NonPeriodicActivity* >(getActivity().get()); }
+//RTT::Activity* CameraTask::getActivity()
+//{ return dynamic_cast< RTT::Activity* >(getActivity().get()); }
 
 CameraTask::CameraTask(std::string const& name)
     : CameraTaskBase(name)
