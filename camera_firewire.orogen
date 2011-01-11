@@ -1,7 +1,5 @@
 name 'camera_firewire'
 
-enable_corba
-
 using_library "opencv"
 using_library "camera_firewire"
 using_library "camera_interface"
