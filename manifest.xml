@@ -5,9 +5,9 @@
   <license></license>
   <url>http://</url>
   <logo>http://</logo>
-  <depend package="base" />
+  <depend package="base/types" />
   <depend package="opencv" />
-  <depend package="modules/canserial" />
+  <depend package="drivers/orogen/canserial" />
   <depend package="drivers/camera_firewire"/>
   <versioncontrol type="git" url="" />
   <export>
