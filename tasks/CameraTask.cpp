@@ -3,7 +3,6 @@
 #include <rtt/Activity.hpp>
 #include <camera_interface/CamTypes.h>
 #include <camera_interface/CamInfoUtils.h>
-#include <opencv/highgui.h>
 
 using namespace camera_firewire;
 using namespace camera;
