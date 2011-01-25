@@ -1,9 +1,9 @@
 #include "CameraTask.hpp"
 #include <dc1394/dc1394.h>
 #include <rtt/Activity.hpp>
-#include "../../../drivers/camera_interface/src/CamTypes.h"
+#include <camera_interface/CamTypes.h>
+#include <camera_interface/CamInfoUtils.h>
 #include <opencv/highgui.h>
-#include "../../../drivers/camera_interface/src/CamInfoUtils.h"
 
 using namespace camera_firewire;
 using namespace camera;
