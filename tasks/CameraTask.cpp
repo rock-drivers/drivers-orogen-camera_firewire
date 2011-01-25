@@ -73,14 +73,9 @@ bool CameraTask::configureHook()
     cam.setAttrib(int_attrib::AcquisitionFrameCount, 200);
     //cam.setAttrib(enum_attrib::ExposureModeToManual);
     cam.setAttrib(enum_attrib::ExposureModeToAuto);
-    std::cerr << 3;
-    timeval ts, te, tcurr, tprev;
-    gettimeofday(&ts,NULL);
-    gettimeofday(&tcurr,NULL);
-    lastUpdateTime = 0;
-    std::cerr << 4;
-    cam.setAttrib(camera::double_attrib::FrameRate, 30);
 
+    std::cerr << 3;
+    cam.setAttrib(camera::double_attrib::FrameRate, 30);
     camera.clearBuffer();
     std::cerr << 5;
     cam.grab(SingleFrame, 20);
