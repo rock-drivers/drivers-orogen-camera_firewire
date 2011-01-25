@@ -30,16 +30,14 @@ bool CameraTask::configureHook()
     //frame_size_t size(752,480);
     frame_size_t size(640,480);
     
-	frame.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
+    frame.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
 	
     std::cerr << "creating new bus device...";
     // create a new firewire bus device
     dc_device = dc1394_new();
     std::cerr << "done." << std::endl;
 
-	camera.setDevice(dc_device);
-    //camera.cleanup();
-    
+    camera.setDevice(dc_device);
     camera::CamInterface &cam = camera;
 
     //find and display all cameras
