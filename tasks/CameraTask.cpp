@@ -4,6 +4,8 @@
 #include <camera_interface/CamTypes.h>
 #include <camera_interface/CamInfoUtils.h>
 
+#include <rtt/extras/FileDescriptorActivity.hpp>
+
 using namespace camera_firewire;
 using namespace camera;
 using namespace base::samples::frame;
@@ -90,24 +92,23 @@ bool CameraTask::configureHook()
 
 bool CameraTask::startHook()
 {
-    getActivity()->trigger();
+    RTT::extras::FileDescriptorActivity* fd_activity =
+        getActivity<RTT::extras::FileDescriptorActivity>();
+    if (fd_activity)
+    {
+        std::cerr << "using FD activity !" << std::endl;
+        std::cerr << "  FD=" << camera.getFileDescriptor() << std::endl;
+        fd_activity->watch(camera.getFileDescriptor());
+    }
+
     return true;
 }
 
 void CameraTask::updateHook()
 {
-    timeval tim;
-    gettimeofday(&tim, NULL);
-    double t1=tim.tv_sec*1000.0+(tim.tv_usec/1000.0) -1.285582e12;
-    std::cerr << "fps estimate = " << 1.0/(t1/1000.0-lastUpdateTime/1000.0) << " fps\n";
-    lastUpdateTime = t1;
-
-    std::cerr << "retrieving...";
-    camera.retrieveFrame(frame,0);
-    std::cerr << "done" << std::endl;
-    _frame.write(frame);
-   
-    getActivity()->trigger();
+    std::cerr << "triggered !" << std::endl;
+    if (camera.retrieveFrame(frame, 0))
+        _frame.write(frame);
 }
 
 // void CameraTask::errorHook()
@@ -116,6 +117,10 @@ void CameraTask::updateHook()
 
 void CameraTask::stopHook()
 {
+    RTT::extras::FileDescriptorActivity* fd_activity =
+        getActivity<RTT::extras::FileDescriptorActivity>();
+    if (fd_activity)
+        fd_activity->clearAllWatches();
 }
 
 void CameraTask::cleanupHook()

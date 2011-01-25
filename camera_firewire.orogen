@@ -19,7 +19,8 @@ task_context 'CameraTask' do
     	doc 'width of the frame'
     property('height', 'int',480).
     	doc 'height of the frame'
-    
+
+    default_activity :fd_driven
 end
 
 task_context 'CameraViewerTask' do
