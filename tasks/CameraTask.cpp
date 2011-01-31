@@ -101,7 +101,6 @@ bool CameraTask::startHook()
 
 void CameraTask::updateHook()
 {
-    std::cerr << "triggered !" << std::endl;
     if (camera.retrieveFrame(frame, 0))
         _frame.write(frame);
 }
