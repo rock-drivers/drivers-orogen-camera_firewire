@@ -2,28 +2,25 @@
 #define CAMERA_FIREWIRE_CAMERATASK_TASK_HPP
 
 #include "camera_firewire/CameraTaskBase.hpp"
-#include "camera_firewire/CamFireWire.h"
 
-namespace RTT
-{
-    class Activity;
+namespace camera {
+    class CamFireWire;
 }
-
 
 namespace camera_firewire {
     class CameraTask : public CameraTaskBase
     {
 	friend class CameraTaskBase;
+
     protected:
+        camera::CamFireWire* camera;
 
     public:
         CameraTask(std::string const& name = "camera_firewire::CameraTask");
-        //RTT::Activity* getActivity();
+        ~CameraTask();
+
         base::samples::frame::Frame frame;
 		double lastUpdateTime;
-
-        camera::CamFireWire camera;
-	
 
 
         /** This hook is called by Orocos when the state machine transitions
