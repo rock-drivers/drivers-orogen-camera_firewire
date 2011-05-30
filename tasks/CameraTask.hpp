@@ -7,6 +7,12 @@ namespace camera {
     class CamFireWire;
 }
 
+namespace aggregator
+{
+    template<class Item>
+    class TimestampSynchronizer;
+}
+
 namespace camera_firewire {
     class CameraTask : public CameraTaskBase
     {
@@ -22,6 +28,8 @@ namespace camera_firewire {
         base::samples::frame::Frame frame;
 		double lastUpdateTime;
 
+	aggregator::TimestampSynchronizer<base::samples::frame::Frame>*
+	timestamp_synchronizer;
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the

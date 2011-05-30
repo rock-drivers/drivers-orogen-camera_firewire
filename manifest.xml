@@ -10,6 +10,7 @@
   <depend package="drivers/orogen/canserial" />
   <depend package="drivers/camera_firewire"/>
   <depend package="drivers/orogen/canbus" />
+  <depend package="drivers/aggregator"/>
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />

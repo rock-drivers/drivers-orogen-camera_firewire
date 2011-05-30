@@ -12,6 +12,7 @@ task_context 'CameraTask' do
    
     output_port 'frame', 'base::samples::frame::Frame'
 
+    input_port 'trigger_timestamp', '/base/Time'
     
     property('camera_id', 'string','105984').
     	doc 'unique camerea id'
@@ -21,6 +22,8 @@ task_context 'CameraTask' do
     	doc 'height of the frame'
     property('exposure_value', 'int',50).
 	doc 'the exposure value'
+    property('frame_rate', 'int',5).
+    	doc 'number of frames per second to expect from the camera'
 
     default_activity :fd_driven
 end

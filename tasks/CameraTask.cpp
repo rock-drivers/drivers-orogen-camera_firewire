@@ -4,6 +4,7 @@
 #include <camera_interface/CamTypes.h>
 #include <camera_interface/CamInfoUtils.h>
 #include <camera_firewire/CamFireWire.h>
+#include <TimestampSynchronizer.hpp>
 
 #include <rtt/extras/FileDescriptorActivity.hpp>
 
@@ -15,11 +16,16 @@ using namespace base::samples::frame;
 //{ return dynamic_cast< RTT::Activity* >(getActivity().get()); }
 
 CameraTask::CameraTask(std::string const& name)
-    : CameraTaskBase(name), camera(new camera::CamFireWire)
+    : CameraTaskBase(name)
+    , camera(new camera::CamFireWire)
+    , timestamp_synchronizer(0)
 { }
 
 CameraTask::~CameraTask()
-{ delete camera; }
+{
+    delete camera;
+    delete timestamp_synchronizer;
+}
 
 /// The following lines are template definitions for the various state machine
 // hooks defined by Orocos::RTT. See CameraTask.hpp for more detailed
@@ -27,6 +33,12 @@ CameraTask::~CameraTask()
 
 bool CameraTask::configureHook()
 {
+    timestamp_synchronizer = new aggregator::TimestampSynchronizer<base::samples::frame::Frame>
+	(base::Time::fromSeconds(0.6),
+	 base::Time::fromSeconds(0),
+	 base::Time::fromSeconds(1.0/_frame_rate),
+	 base::Time::fromSeconds(20),
+	 base::Time::fromSeconds(1.0/_frame_rate));
 
     std::cerr << "requested camera id: " << _camera_id << std::endl;
 
@@ -104,8 +116,22 @@ bool CameraTask::startHook()
 
 void CameraTask::updateHook()
 {
-    if (camera->retrieveFrame(frame, 0))
-        _frame.write(frame);
+    base::Time trigger_ts;
+    while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
+	timestamp_synchronizer->pushReference(trigger_ts);
+
+    if (camera->retrieveFrame(frame, 0)) {
+	if (timestamp_synchronizer->getTimeFor(frame.time))
+	    _frame.write(frame);
+	else
+	    timestamp_synchronizer->pushItem(frame,frame.time);
+    }
+
+    if (timestamp_synchronizer->itemAvailable(base::Time::now())) {
+	timestamp_synchronizer->item().item.time = timestamp_synchronizer->item().time;
+	_frame.write(timestamp_synchronizer->item().item);
+	timestamp_synchronizer->popItem();
+    }
 }
 
 // void CameraTask::errorHook()
@@ -122,4 +148,6 @@ void CameraTask::stopHook()
 
 void CameraTask::cleanupHook()
 {
+    delete timestamp_synchronizer;
+    timestamp_synchronizer = 0;
 }
