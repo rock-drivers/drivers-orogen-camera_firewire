@@ -27,7 +27,6 @@ CameraTask::~CameraTask()
 
 bool CameraTask::configureHook()
 {
-    
 
     std::cerr << "requested camera id: " << _camera_id << std::endl;
 
@@ -70,12 +69,13 @@ bool CameraTask::configureHook()
     camera->setFrameSettings(fs, MODE_BAYER_RGGB, 8, false);
     camera->setAttrib(int_attrib::GainValue, 16);
     camera->setAttrib(enum_attrib::GammaToOn);
-    camera->setAttrib(int_attrib::ExposureValue, 150);
+    camera->setAttrib(int_attrib::ExposureValue, 150);//_exposure_value);
+    std::cout << "set exposure to " << _exposure_value << std::endl;
     camera->setAttrib(int_attrib::WhitebalValueBlue, 580);
     camera->setAttrib(int_attrib::WhitebalValueRed, 650);
     camera->setAttrib(int_attrib::AcquisitionFrameCount, 200);
-    //cam.setAttrib(enum_attrib::ExposureModeToManual);
-    camera->setAttrib(enum_attrib::ExposureModeToAuto);
+    camera->setAttrib(enum_attrib::ExposureModeToManual);
+    //camera->setAttrib(enum_attrib::ExposureModeToAuto);
 
     std::cerr << 3;
     camera->setAttrib(camera::double_attrib::FrameRate, 30);

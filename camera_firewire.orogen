@@ -19,6 +19,8 @@ task_context 'CameraTask' do
     	doc 'width of the frame'
     property('height', 'int',480).
     	doc 'height of the frame'
+    property('exposure_value', 'int',50).
+	doc 'the exposure value'
 
     default_activity :fd_driven
 end
