@@ -25,8 +25,7 @@ namespace camera_firewire {
         CameraTask(std::string const& name = "camera_firewire::CameraTask");
         ~CameraTask();
 
-        base::samples::frame::Frame frame;
-		double lastUpdateTime;
+	double lastUpdateTime;
 
 	aggregator::TimestampSynchronizer<base::samples::frame::Frame>*
 	timestamp_synchronizer;

@@ -44,11 +44,6 @@ bool CameraTask::configureHook()
 
     dc1394_t *dc_device;
 
-    //frame_size_t size(752,480);
-    frame_size_t size(640,480);
-    
-    frame.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
-	
     std::cerr << "creating new bus device...";
     // create a new firewire bus device
     dc_device = dc1394_new();
@@ -63,7 +58,7 @@ bool CameraTask::configureHook()
 
     std::string cam_id = _camera_id;
 
-    for(int i = 0 ; i<cam_infos.size() ; i++)
+    for(unsigned int i = 0 ; i<cam_infos.size() ; i++)
     {
       std::cerr << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id << std::endl;
       if(cam_infos[i].unique_id == strtoul(cam_id.c_str(),NULL,0))
@@ -120,12 +115,20 @@ void CameraTask::updateHook()
     while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
 	timestamp_synchronizer->pushReference(trigger_ts);
 
-    if (camera->retrieveFrame(frame, 0)) {
-	if (timestamp_synchronizer->getTimeFor(frame.time))
-	    _frame.write(frame);
-	else
-	    timestamp_synchronizer->pushItem(frame,frame.time);
+    aggregator::TimestampSynchronizer<base::samples::frame::Frame>::ItemIterator
+      frame_it = timestamp_synchronizer->getSpareItem();
+
+    //frame_size_t size(752,480);
+    frame_size_t size(640,480);
+    frame_it->item.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
+
+    if (camera->retrieveFrame(frame_it->item, 0))
+    {
+	frame_it->time = frame_it->item.time;
+	timestamp_synchronizer->pushItem(frame_it);
     }
+    else
+	timestamp_synchronizer->putSpareItem(frame_it);
 
     if (timestamp_synchronizer->itemAvailable(base::Time::now())) {
 	timestamp_synchronizer->item().item.time = timestamp_synchronizer->item().time;
