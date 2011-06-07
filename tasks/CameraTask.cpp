@@ -62,7 +62,11 @@ bool CameraTask::configureHook()
     {
       std::cerr << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id << std::endl;
       if(cam_infos[i].unique_id == strtoul(cam_id.c_str(),NULL,0))
-        camera->open(cam_infos[i],Master);
+	  if(!camera->open(cam_infos[i],Master))
+	  {
+	      std::cerr << "Failed to open Camera" << std::endl;
+	      return false;
+	  }
     }
     std::cerr << 1;
     camera->setAttrib(camera::int_attrib::IsoSpeed, 400);
