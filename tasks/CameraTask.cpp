@@ -126,13 +126,17 @@ void CameraTask::updateHook()
     frame_size_t size(640,480);
     frame_it->item.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
 
-    if (camera->retrieveFrame(frame_it->item, 0))
+    if (camera->retrieveFrame(frame_it->item, 10))
     {
 	frame_it->time = frame_it->item.time;
 	timestamp_synchronizer->pushItem(frame_it);
     }
     else
+    {
 	timestamp_synchronizer->putSpareItem(frame_it);
+        exception(IO_ERROR);
+        return;
+    }
 
     if (timestamp_synchronizer->itemAvailable(base::Time::now())) {
 	timestamp_synchronizer->item().item.time = timestamp_synchronizer->item().time;

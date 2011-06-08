@@ -25,6 +25,8 @@ task_context 'CameraTask' do
     property('frame_rate', 'int',5).
     	doc 'number of frames per second to expect from the camera'
 
+    exception_states :IO_ERROR
+
     default_activity :fd_driven
 end
 
