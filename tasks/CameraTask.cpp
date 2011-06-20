@@ -4,7 +4,7 @@
 #include <camera_interface/CamTypes.h>
 #include <camera_interface/CamInfoUtils.h>
 #include <camera_firewire/CamFireWire.h>
-#include <TimestampSynchronizer.hpp>
+#include <Timestamper.hpp>
 
 #include <rtt/extras/FileDescriptorActivity.hpp>
 
@@ -18,13 +18,13 @@ using namespace base::samples::frame;
 CameraTask::CameraTask(std::string const& name)
     : CameraTaskBase(name)
     , camera(new camera::CamFireWire)
-    , timestamp_synchronizer(0)
+    , timestamper(0)
 { }
 
 CameraTask::~CameraTask()
 {
     delete camera;
-    delete timestamp_synchronizer;
+    delete timestamper;
 }
 
 /// The following lines are template definitions for the various state machine
@@ -33,7 +33,7 @@ CameraTask::~CameraTask()
 
 bool CameraTask::configureHook()
 {
-    timestamp_synchronizer = new aggregator::TimestampSynchronizer<base::samples::frame::Frame>
+    timestamper = new aggregator::Timestamper<base::samples::frame::Frame>
 	(base::Time::fromSeconds(0.6),
 	 base::Time::fromSeconds(0),
 	 base::Time::fromSeconds(1.0/_frame_rate),
@@ -115,12 +115,15 @@ bool CameraTask::startHook()
 
 void CameraTask::updateHook()
 {
+    if (_trigger_timestamp.connected())
+	timestamper->enableSynchronization();
+
     base::Time trigger_ts;
     while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
-	timestamp_synchronizer->pushReference(trigger_ts);
+	timestamper->pushReference(trigger_ts);
 
-    aggregator::TimestampSynchronizer<base::samples::frame::Frame>::ItemIterator
-      frame_it = timestamp_synchronizer->getSpareItem();
+    aggregator::Timestamper<base::samples::frame::Frame>::ItemIterator
+      frame_it = timestamper->getSpareItem();
 
     //frame_size_t size(752,480);
     frame_size_t size(640,480);
@@ -129,19 +132,19 @@ void CameraTask::updateHook()
     if (camera->retrieveFrame(frame_it->item, 10))
     {
 	frame_it->time = frame_it->item.time;
-	timestamp_synchronizer->pushItem(frame_it);
+	timestamper->pushItem(frame_it);
     }
     else
     {
-	timestamp_synchronizer->putSpareItem(frame_it);
+	timestamper->putSpareItem(frame_it);
         exception(IO_ERROR);
         return;
     }
 
-    if (timestamp_synchronizer->itemAvailable(base::Time::now())) {
-	timestamp_synchronizer->item().item.time = timestamp_synchronizer->item().time;
-	_frame.write(timestamp_synchronizer->item().item);
-	timestamp_synchronizer->popItem();
+    while (timestamper->itemAvailable(base::Time::now())) {
+	timestamper->item().item.time = timestamper->item().time;
+	_frame.write(timestamper->item().item);
+	timestamper->popItem();
     }
 }
 
@@ -159,6 +162,6 @@ void CameraTask::stopHook()
 
 void CameraTask::cleanupHook()
 {
-    delete timestamp_synchronizer;
-    timestamp_synchronizer = 0;
+    delete timestamper;
+    timestamper = 0;
 }
