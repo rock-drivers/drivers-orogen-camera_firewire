@@ -74,9 +74,9 @@ bool CameraTask::configureHook()
     camera->setAttrib(camera::double_attrib::FrameRate, 15);        
     std::cerr << 2;
     frame_size_t fs;
-    fs.height = 480;
-    fs.width = 640; //fs.width = 752;
-    
+    fs.height = _height;
+    fs.width = _width;
+
     camera->setFrameSettings(fs, MODE_BAYER_RGGB, 8, false);
     camera->setAttrib(int_attrib::GainValue, 16);
     camera->setAttrib(enum_attrib::GammaToOn);
@@ -125,9 +125,7 @@ void CameraTask::updateHook()
     aggregator::Timestamper<base::samples::frame::Frame>::ItemIterator
       frame_it = timestamper->getSpareItem();
 
-    //frame_size_t size(752,480);
-    frame_size_t size(640,480);
-    frame_it->item.init(size.width,size.height,3,MODE_BAYER_RGGB,false);
+    frame_it->item.init(_width,_height,3,MODE_BAYER_RGGB,false);
 
     if (camera->retrieveFrame(frame_it->item, 10))
     {
