@@ -68,11 +68,9 @@ bool CameraTask::configureHook()
 	      return false;
 	  }
     }
-    std::cerr << 1;
     camera->setAttrib(camera::int_attrib::IsoSpeed, 400);
     
     camera->setAttrib(camera::double_attrib::FrameRate, 15);        
-    std::cerr << 2;
     frame_size_t fs;
     fs.height = _height;
     fs.width = _width;
@@ -88,10 +86,7 @@ bool CameraTask::configureHook()
     camera->setAttrib(enum_attrib::ExposureModeToManual);
     //camera->setAttrib(enum_attrib::ExposureModeToAuto);
 
-    std::cerr << 3;
     camera->setAttrib(camera::double_attrib::FrameRate, 30);
-    camera->clearBuffer();
-    std::cerr << 5;
     camera->grab(SingleFrame, 20);
        
     //usleep(1000000);
