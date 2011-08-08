@@ -4,7 +4,7 @@
 #include <camera_interface/CamTypes.h>
 #include <camera_interface/CamInfoUtils.h>
 #include <camera_firewire/CamFireWire.h>
-#include <Timestamper.hpp>
+#include <TimestampEstimator.hpp>
 
 #include <rtt/extras/FileDescriptorActivity.hpp>
 
@@ -18,13 +18,13 @@ using namespace base::samples::frame;
 CameraTask::CameraTask(std::string const& name)
     : CameraTaskBase(name)
     , camera(new camera::CamFireWire)
-    , timestamper(0)
+    , timestampEstimator(0)
 { }
 
 CameraTask::~CameraTask()
 {
     delete camera;
-    delete timestamper;
+    delete timestampEstimator;
 }
 
 /// The following lines are template definitions for the various state machine
@@ -33,16 +33,15 @@ CameraTask::~CameraTask()
 
 bool CameraTask::configureHook()
 {
-    timestamper = new aggregator::Timestamper<base::samples::frame::Frame>
-	(base::Time::fromSeconds(0.6),
-	 base::Time::fromSeconds(0),
-	 base::Time::fromSeconds(1.0/_frame_rate),
-	 base::Time::fromSeconds(20),
+    timestampEstimator = new aggregator::TimestampEstimator
+	(base::Time::fromSeconds(20),
 	 base::Time::fromSeconds(1.0/_frame_rate));
 
     std::cerr << "requested camera id: " << _camera_id << std::endl;
 
     dc1394_t *dc_device;
+
+    frame.init(_width,_height,3,MODE_BAYER_RGGB,false);
 
     std::cerr << "creating new bus device...";
     // create a new firewire bus device
@@ -110,34 +109,18 @@ bool CameraTask::startHook()
 
 void CameraTask::updateHook()
 {
-    if (_trigger_timestamp.connected())
-	timestamper->enableSynchronization();
-
     base::Time trigger_ts;
     while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
-	timestamper->pushReference(trigger_ts);
-
-    aggregator::Timestamper<base::samples::frame::Frame>::ItemIterator
-      frame_it = timestamper->getSpareItem();
-
-    frame_it->item.init(_width,_height,3,MODE_BAYER_RGGB,false);
-
-    if (camera->retrieveFrame(frame_it->item, 10))
+	timestampEstimator->updateReference(trigger_ts);
+    if (camera->retrieveFrame(frame, 10))
     {
-	frame_it->time = frame_it->item.time;
-	timestamper->pushItem(frame_it);
+	frame.time = timestampEstimator->update(frame.time);
+        _frame.write(frame);
     }
     else
     {
-	timestamper->putSpareItem(frame_it);
         exception(IO_ERROR);
         return;
-    }
-
-    while (timestamper->itemAvailable(base::Time::now())) {
-	timestamper->item().item.time = timestamper->item().time;
-	_frame.write(timestamper->item().item);
-	timestamper->popItem();
     }
 }
 
@@ -155,6 +138,6 @@ void CameraTask::stopHook()
 
 void CameraTask::cleanupHook()
 {
-    delete timestamper;
-    timestamper = 0;
+    delete timestampEstimator;
+    timestampEstimator = 0;
 }

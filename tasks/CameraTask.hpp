@@ -9,8 +9,7 @@ namespace camera {
 
 namespace aggregator
 {
-    template<class Item>
-    class Timestamper;
+    class TimestampEstimator;
 }
 
 namespace camera_firewire {
@@ -25,9 +24,10 @@ namespace camera_firewire {
         CameraTask(std::string const& name = "camera_firewire::CameraTask");
         ~CameraTask();
 
-	double lastUpdateTime;
+        base::samples::frame::Frame frame;
+        double lastUpdateTime;
 
-	aggregator::Timestamper<base::samples::frame::Frame>* timestamper;
+        aggregator::TimestampEstimator* timestampEstimator;
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the
