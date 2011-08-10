@@ -18,14 +18,13 @@ namespace camera_firewire {
 	friend class CameraTaskBase;
 
     protected:
+        virtual void onRetrieveNewFrame(base::samples::frame::Frame & frame);
+        
         camera::CamFireWire* camera;
 
     public:
         CameraTask(std::string const& name = "camera_firewire::CameraTask");
         ~CameraTask();
-
-        base::samples::frame::Frame frame;
-        double lastUpdateTime;
 
         aggregator::TimestampEstimator* timestampEstimator;
 
@@ -67,7 +66,7 @@ namespace camera_firewire {
          * called before starting it again.
          *
          */
-         void updateHook();
+         // void updateHook();
         
 
         /** This hook is called by Orocos when the component is in the

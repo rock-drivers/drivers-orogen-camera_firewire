@@ -3,31 +3,16 @@ name 'camera_firewire'
 using_library "opencv"
 using_library "camera_firewire"
 using_library "camera_interface"
+using_task_library "camera_base"
 using_task_library "canserial"
 using_task_library "canbus"
 import_types_from "base"
 
 task_context 'CameraTask' do
-    needs_configuration
-   
-    output_port 'frame', 'base::samples::frame::Frame'
+    subclasses "camera_base::Task"
 
     input_port 'trigger_timestamp', '/base/Time'
-    
-    property('camera_id', 'string','105984').
-    	doc 'unique camerea id'
-    property('width', 'int',640).
-    	doc 'width of the frame'
-    property('height', 'int',480).
-    	doc 'height of the frame'
-    property('exposure_value', 'int',50).
-	doc 'the exposure value'
-    property('frame_rate', 'int',5).
-    	doc 'number of frames per second to expect from the camera'
 
-    exception_states :IO_ERROR
-
-    default_activity :fd_driven
 end
 
 task_context 'CameraViewerTask' do

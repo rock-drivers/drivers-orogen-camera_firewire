@@ -19,7 +19,17 @@ CameraTask::CameraTask(std::string const& name)
     : CameraTaskBase(name)
     , camera(new camera::CamFireWire)
     , timestampEstimator(0)
-{ }
+{
+    _grab_mode = SingleFrame;
+    _frame_buffer_size = 20;
+    _fps = 5;
+    _exposure = 150;
+    _exposure_mode = "manual";
+    _gain = 16;
+    _camera_format = MODE_BAYER_RGGB;
+    _whitebalance_blue = 580;
+    _whitebalance_red = 650;
+}
 
 CameraTask::~CameraTask()
 {
@@ -33,15 +43,16 @@ CameraTask::~CameraTask()
 
 bool CameraTask::configureHook()
 {
+    if (! CameraTaskBase::configureHook())
+      return false;
+
     timestampEstimator = new aggregator::TimestampEstimator
 	(base::Time::fromSeconds(20),
-	 base::Time::fromSeconds(1.0/_frame_rate));
+	 base::Time::fromSeconds(1.0/_fps), 2);
 
     std::cerr << "requested camera id: " << _camera_id << std::endl;
 
     dc1394_t *dc_device;
-
-    frame.init(_width,_height,3,MODE_BAYER_RGGB,false);
 
     std::cerr << "creating new bus device...";
     // create a new firewire bus device
@@ -61,32 +72,17 @@ bool CameraTask::configureHook()
     {
       std::cerr << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id << std::endl;
       if(cam_infos[i].unique_id == strtoul(cam_id.c_str(),NULL,0))
-	  if(!camera->open(cam_infos[i],Master))
-	  {
-	      std::cerr << "Failed to open Camera" << std::endl;
-	      return false;
-	  }
+          if(!camera->open(cam_infos[i],Master))
+          {
+              std::cerr << "Failed to open Camera" << std::endl;
+              return false;
+          }
     }
-    camera->setAttrib(camera::int_attrib::IsoSpeed, 400);
+    cam_interface = camera;
     
-    camera->setAttrib(camera::double_attrib::FrameRate, 15);        
-    frame_size_t fs;
-    fs.height = _height;
-    fs.width = _width;
-
-    camera->setFrameSettings(fs, MODE_BAYER_RGGB, 8, false);
-    camera->setAttrib(int_attrib::GainValue, 16);
+    camera->setAttrib(camera::int_attrib::IsoSpeed, 400);
     camera->setAttrib(enum_attrib::GammaToOn);
-    camera->setAttrib(int_attrib::ExposureValue, 150);//_exposure_value);
-    std::cout << "set exposure to " << _exposure_value << std::endl;
-    camera->setAttrib(int_attrib::WhitebalValueBlue, 580);
-    camera->setAttrib(int_attrib::WhitebalValueRed, 650);
     camera->setAttrib(int_attrib::AcquisitionFrameCount, 200);
-    camera->setAttrib(enum_attrib::ExposureModeToManual);
-    //camera->setAttrib(enum_attrib::ExposureModeToAuto);
-
-    camera->setAttrib(camera::double_attrib::FrameRate, 30);
-    camera->grab(SingleFrame, 20);
        
     //usleep(1000000);
     std::cerr << "end of configureHook" << std::endl;
@@ -95,6 +91,9 @@ bool CameraTask::configureHook()
 
 bool CameraTask::startHook()
 {
+    if (! CameraTaskBase::startHook())
+      return false;
+      
     RTT::extras::FileDescriptorActivity* fd_activity =
         getActivity<RTT::extras::FileDescriptorActivity>();
     if (fd_activity)
@@ -107,22 +106,9 @@ bool CameraTask::startHook()
     return true;
 }
 
-void CameraTask::updateHook()
-{
-    base::Time trigger_ts;
-    while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
-	timestampEstimator->updateReference(trigger_ts);
-    if (camera->retrieveFrame(frame, 10))
-    {
-	frame.time = timestampEstimator->update(frame.time);
-        _frame.write(frame);
-    }
-    else
-    {
-        exception(IO_ERROR);
-        return;
-    }
-}
+// void CameraTask::updateHook()
+// {
+// }
 
 // void CameraTask::errorHook()
 // {
@@ -130,6 +116,7 @@ void CameraTask::updateHook()
 
 void CameraTask::stopHook()
 {
+    TaskBase::stopHook();
     RTT::extras::FileDescriptorActivity* fd_activity =
         getActivity<RTT::extras::FileDescriptorActivity>();
     if (fd_activity)
@@ -138,6 +125,16 @@ void CameraTask::stopHook()
 
 void CameraTask::cleanupHook()
 {
+    TaskBase::cleanupHook();
     delete timestampEstimator;
     timestampEstimator = 0;
+}
+
+void CameraTask::onRetrieveNewFrame(base::samples::frame::Frame & frame)
+{
+    base::Time trigger_ts;
+    while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
+	    timestampEstimator->updateReference(trigger_ts);
+
+    frame.time = timestampEstimator->update(frame.time);
 }
