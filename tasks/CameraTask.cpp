@@ -4,7 +4,7 @@
 #include <camera_interface/CamTypes.h>
 #include <camera_interface/CamInfoUtils.h>
 #include <camera_firewire/CamFireWire.h>
-#include <TimestampEstimator.hpp>
+#include <aggregator/TimestampEstimator.hpp>
 
 #include <rtt/extras/FileDescriptorActivity.hpp>
 
