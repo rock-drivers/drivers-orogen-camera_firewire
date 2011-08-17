@@ -4,8 +4,6 @@ using_library "opencv"
 using_library "camera_firewire"
 using_library "camera_interface"
 using_task_library "camera_base"
-using_task_library "canserial"
-using_task_library "canbus"
 import_types_from "base"
 
 task_context 'CameraTask' do
