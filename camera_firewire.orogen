@@ -21,7 +21,6 @@ task_context 'CameraViewerTask' do
 end
 
 deployment "camera_firewire_test" do
-
     left_cam = task('camera_firewire_left', 'camera_firewire::CameraTask').
        periodic 0.016
     left_cam.camera_id = "2892819639939303"
@@ -31,33 +30,5 @@ deployment "camera_firewire_test" do
     right_cam.camera_id = "2892819639939304"
 
     add_default_logger
-
-    if !corba_enabled?
-       browse left_cam
-       browse right_cam
-    end
-end
-
-
-deployment "camera_test" do
-
-    can     = task('can', "canbus::Task").
-        periodic(0.001).
-        realtime.
-        priority(85)
-
-    canserial = task("canserial", "canserial::Task").
-        sequential
-
-    camera_task = task("camera", 'CameraTask').
-        periodic(0.016)
-    #camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
-    #    periodic(0.03)
-
-    add_default_logger
-    if !corba_enabled?
-        browse camera_task
-        browse camera_viewer_task
-    end
 end
 

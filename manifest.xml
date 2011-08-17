@@ -8,9 +8,7 @@
   <depend package="base/types" />
   <depend package="opencv" />
   <depend package="drivers/orogen/camera_base" />
-  <depend package="drivers/orogen/canserial" />
   <depend package="drivers/camera_firewire"/>
-  <depend package="drivers/orogen/canbus" />
   <depend package="drivers/aggregator"/>
   <versioncontrol type="git" url="" />
   <export>
