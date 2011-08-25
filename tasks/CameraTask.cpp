@@ -20,21 +20,38 @@ CameraTask::CameraTask(std::string const& name)
     , camera(new camera::CamFireWire)
     , timestampEstimator(0)
 {
+    // default properties
     _grab_mode = SingleFrame;
     _frame_buffer_size = 20;
-    _fps = 5;
+    _fps = 30;
     _exposure = 150;
     _exposure_mode = "manual";
     _gain = 16;
     _camera_format = MODE_BAYER_RGGB;
     _whitebalance_blue = 580;
     _whitebalance_red = 650;
+    _gamma = true;
+    _acquisition_frame_count = 200;
 }
 
 CameraTask::~CameraTask()
 {
     delete camera;
     delete timestampEstimator;
+}
+
+/**
+ * Callback function, will triggered if a new frame was retrieved.
+ * 
+ * @param frame the new frame
+ */
+void CameraTask::onRetrieveNewFrame(base::samples::frame::Frame & frame)
+{
+    base::Time trigger_ts;
+    while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
+        timestampEstimator->updateReference(trigger_ts);
+
+    frame.time = timestampEstimator->update(frame.time);
 }
 
 /// The following lines are template definitions for the various state machine
@@ -50,14 +67,13 @@ bool CameraTask::configureHook()
 	(base::Time::fromSeconds(20),
 	 base::Time::fromSeconds(1.0/_fps), 2);
 
-    std::cerr << "requested camera id: " << _camera_id << std::endl;
+    RTT::log(RTT::Info) << "requested firewire camera id: " << _camera_id <<  RTT::endlog();
 
     dc1394_t *dc_device;
-
-    std::cerr << "creating new bus device...";
+    RTT::log(RTT::Info) << "creating new dc1394 bus device...";
     // create a new firewire bus device
     dc_device = dc1394_new();
-    std::cerr << "done." << std::endl;
+    RTT::log(RTT::Info) << "done." <<  RTT::endlog();
 
     camera->setDevice(dc_device);
 
@@ -70,41 +86,28 @@ bool CameraTask::configureHook()
 
     for(unsigned int i = 0 ; i<cam_infos.size() ; i++)
     {
-      std::cerr << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id << std::endl;
+      RTT::log(RTT::Info) << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id <<  RTT::endlog();
       if(cam_infos[i].unique_id == strtoul(cam_id.c_str(),NULL,0))
           if(!camera->open(cam_infos[i],Master))
           {
-              std::cerr << "Failed to open Camera" << std::endl;
+              RTT::log(RTT::Error) << "Failed to open firewire Camera" <<  RTT::endlog();
               return false;
           }
     }
     cam_interface = camera;
     
-    camera->setAttrib(camera::int_attrib::IsoSpeed, 400);
-    camera->setAttrib(enum_attrib::GammaToOn);
-    camera->setAttrib(int_attrib::AcquisitionFrameCount, 200);
+    camera->setAttrib(int_attrib::IsoSpeed, 400);
        
-    //usleep(1000000);
-    std::cerr << "end of configureHook" << std::endl;
+    RTT::log(RTT::Info) << "end of configureHook" << RTT::endlog();
     return true;
 }
 
-bool CameraTask::startHook()
-{
-    if (! CameraTaskBase::startHook())
-      return false;
-      
-    RTT::extras::FileDescriptorActivity* fd_activity =
-        getActivity<RTT::extras::FileDescriptorActivity>();
-    if (fd_activity)
-    {
-        std::cerr << "using FD activity !" << std::endl;
-        std::cerr << "  FD=" << camera->getFileDescriptor() << std::endl;
-        fd_activity->watch(camera->getFileDescriptor());
-    }
-
-    return true;
-}
+//bool CameraTask::startHook()
+//{
+//    if (! CameraTaskBase::startHook())
+//      return false;
+//    return true;
+//}
 
 // void CameraTask::updateHook()
 // {
@@ -114,27 +117,14 @@ bool CameraTask::startHook()
 // {
 // }
 
-void CameraTask::stopHook()
-{
-    TaskBase::stopHook();
-    RTT::extras::FileDescriptorActivity* fd_activity =
-        getActivity<RTT::extras::FileDescriptorActivity>();
-    if (fd_activity)
-        fd_activity->clearAllWatches();
-}
+//void CameraTask::stopHook()
+//{
+//    TaskBase::stopHook();
+//}
 
 void CameraTask::cleanupHook()
 {
     TaskBase::cleanupHook();
     delete timestampEstimator;
     timestampEstimator = 0;
-}
-
-void CameraTask::onRetrieveNewFrame(base::samples::frame::Frame & frame)
-{
-    base::Time trigger_ts;
-    while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
-	    timestampEstimator->updateReference(trigger_ts);
-
-    frame.time = timestampEstimator->update(frame.time);
 }
