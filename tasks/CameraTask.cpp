@@ -21,7 +21,7 @@ CameraTask::CameraTask(std::string const& name)
     _exposure = 150;
     _exposure_mode = "manual";
     _gain = 16;
-    _camera_format = MODE_BAYER_RGGB;
+    _camera_format = MODE_BAYER_BGGR;
     _whitebalance_blue = 580;
     _whitebalance_red = 650;
     _gamma = true;
