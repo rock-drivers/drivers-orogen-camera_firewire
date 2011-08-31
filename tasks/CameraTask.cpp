@@ -1,19 +1,13 @@
 #include "CameraTask.hpp"
-#include <dc1394/dc1394.h>
-#include <rtt/Activity.hpp>
+#include <dc1394/camera.h>
 #include <camera_interface/CamTypes.h>
 #include <camera_interface/CamInfoUtils.h>
 #include <camera_firewire/CamFireWire.h>
 #include <aggregator/TimestampEstimator.hpp>
 
-#include <rtt/extras/FileDescriptorActivity.hpp>
-
 using namespace camera_firewire;
 using namespace camera;
 using namespace base::samples::frame;
-
-//RTT::Activity* CameraTask::getActivity()
-//{ return dynamic_cast< RTT::Activity* >(getActivity().get()); }
 
 CameraTask::CameraTask(std::string const& name)
     : CameraTaskBase(name)
@@ -32,6 +26,7 @@ CameraTask::CameraTask(std::string const& name)
     _whitebalance_red = 650;
     _gamma = true;
     _acquisition_frame_count = 200;
+    _whitebalance_mode = "auto_once";
 }
 
 CameraTask::~CameraTask()
@@ -79,7 +74,11 @@ bool CameraTask::configureHook()
 
     //find and display all cameras
     std::vector<CamInfo> cam_infos ;
-    camera->listCameras(cam_infos);
+    int num_cams = camera->listCameras(cam_infos);
+    if(num_cams <= 0){
+        RTT::log(RTT::Error) << "Unable to find any firewire camera! (Abort)" <<  RTT::endlog();
+        return false;
+    }
     showCamInfos(cam_infos);
 
     std::string cam_id = _camera_id;
