@@ -96,6 +96,11 @@ bool CameraTask::configureHook()
     cam_interface = camera;
     
     camera->setAttrib(int_attrib::IsoSpeed, 400);
+    
+    if(camera->isAttribAvail(int_attrib::HDRValue))
+        setHDRValues(_hdr_voltage_1, _hdr_voltage_2, _hdr_voltage_3, _hdr_voltage_4);
+    else
+        RTT::log(RTT::Info) << "HDR mode is not supported by the camera" << RTT::endlog();
        
     RTT::log(RTT::Info) << "end of configureHook" << RTT::endlog();
     return true;
@@ -126,4 +131,30 @@ void CameraTask::cleanupHook()
     TaskBase::cleanupHook();
     delete timestampEstimator;
     timestampEstimator = 0;
+}
+
+bool CameraTask::setHDRValues(int hdr_voltage_1, int hdr_voltage_2, int hdr_voltage_3, int hdr_voltage_4)
+{
+    if(hdr_voltage_1 < 0 || hdr_voltage_1 > 255 || hdr_voltage_2 < 0 || hdr_voltage_2 > 255 
+        || hdr_voltage_3 < 0 || hdr_voltage_3 > 255 || hdr_voltage_4 < 0 || hdr_voltage_4 > 255)
+    {
+        RTT::log(RTT::Error) << "The HDR voltage values have to be between 0..255! (Abort)" << RTT::endlog();
+        return false;
+    }
+    
+    u_int32_t value = 0;
+    value = (value & 0xFFFFFF00UL) | (((u_int32_t)hdr_voltage_1) & 0xFFUL);
+    value = (value & 0xFFFF00FFUL) | ((((u_int32_t)hdr_voltage_2) & 0xFFUL) << 8);
+    value = (value & 0xFF00FFFFUL) | ((((u_int32_t)hdr_voltage_3) & 0xFFUL) << 16);
+    value = (value & 0x00FFFFFFUL) | ((((u_int32_t)hdr_voltage_4) & 0xFFUL) << 24);
+    
+    try
+    {
+        cam_interface->setAttrib(int_attrib::HDRValue, (int)value);
+    }
+    catch(std::runtime_error e)
+    {
+        return false;
+    }
+    return true;
 }

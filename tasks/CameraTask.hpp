@@ -18,6 +18,10 @@ namespace camera_firewire {
 	friend class CameraTaskBase;
 
     protected:
+         /* Handler for the setHDRValues operation
+         */
+        virtual bool setHDRValues(int hdr_voltage_1, int hdr_voltage_2, int hdr_voltage_3, int hdr_voltage_4);
+        
         virtual void onRetrieveNewFrame(base::samples::frame::Frame & frame);
         
         camera::CamFireWire* camera;

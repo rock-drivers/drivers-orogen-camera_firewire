@@ -11,6 +11,25 @@ task_context 'CameraTask' do
 
     input_port 'trigger_timestamp', '/base/Time'
 
+    # To activate hdr you have to set the first two voltage levels or all four.
+    # Which meens using one kneepoint or two. Set all to zero meens hdr is disabled.
+    # A good default is v1=120, v2=60, v3=60, v4=40
+    property('hdr_voltage_1', 'int', 0).
+        doc 'hdr kneepoint1 voltage level 1'
+    property('hdr_voltage_2', 'int', 0).
+        doc 'hdr kneepoint1 voltage level 2'
+    property('hdr_voltage_3', 'int', 0).
+        doc 'hdr kneepoint2 voltage level 1'
+    property('hdr_voltage_4', 'int', 0).
+        doc 'hdr kneepoint2 voltage level 2'
+
+    operation('setHDRValues').
+        returns('bool').
+        argument('hdr_voltage_1', 'int', 'hdr_voltage_1').
+        argument('hdr_voltage_2', 'int', 'hdr_voltage_2').
+        argument('hdr_voltage_3', 'int', 'hdr_voltage_3').
+        argument('hdr_voltage_4', 'int', 'hdr_voltage_4')
+
     fd_driven
 end
 
