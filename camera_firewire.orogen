@@ -15,13 +15,13 @@ task_context 'CameraTask' do
     # Which meens using one kneepoint or two. Set all to zero meens hdr is disabled.
     # A good default is v1=120, v2=60, v3=60, v4=40
     property('hdr_voltage_1', 'int', 0).
-        doc 'hdr kneepoint1 voltage level 1'
+        doc 'hdr kneepoint1 voltage level 1 [0..255]'
     property('hdr_voltage_2', 'int', 0).
-        doc 'hdr kneepoint1 voltage level 2'
+        doc 'hdr kneepoint1 voltage level 2 [0..255]'
     property('hdr_voltage_3', 'int', 0).
-        doc 'hdr kneepoint2 voltage level 1'
+        doc 'hdr kneepoint2 voltage level 1 [0..255]'
     property('hdr_voltage_4', 'int', 0).
-        doc 'hdr kneepoint2 voltage level 2'
+        doc 'hdr kneepoint2 voltage level 2 [0..255]'
 
     operation('setHDRValues').
         returns('bool').
