@@ -31,8 +31,16 @@ CameraTask::CameraTask(std::string const& name)
 
 CameraTask::~CameraTask()
 {
-    delete camera;
-    delete timestampEstimator;
+    if(camera)
+    {
+        delete camera;
+        camera = NULL;
+    }
+    if(timestampEstimator)
+    {
+        delete timestampEstimator;
+        timestampEstimator = NULL;
+    }
 }
 
 /**
@@ -123,14 +131,17 @@ bool CameraTask::configureHook()
 
 //void CameraTask::stopHook()
 //{
-//    TaskBase::stopHook();
+//    CameraTaskBase::stopHook();
 //}
 
 void CameraTask::cleanupHook()
 {
-    TaskBase::cleanupHook();
-    delete timestampEstimator;
-    timestampEstimator = 0;
+    CameraTaskBase::cleanupHook();
+    if(timestampEstimator)
+    {
+        delete timestampEstimator;
+        timestampEstimator = NULL;
+    }
 }
 
 bool CameraTask::setHDRValues(int hdr_voltage_1, int hdr_voltage_2, int hdr_voltage_3, int hdr_voltage_4)
