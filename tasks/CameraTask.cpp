@@ -91,16 +91,29 @@ bool CameraTask::configureHook()
 
     std::string cam_id = _camera_id;
 
+    bool opened = false;
     for(unsigned int i = 0 ; i<cam_infos.size() ; i++)
     {
       RTT::log(RTT::Info) << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id <<  RTT::endlog();
       if(cam_infos[i].unique_id == strtoul(cam_id.c_str(),NULL,0))
-          if(!camera->open(cam_infos[i],Master))
+      {
+          if(camera->open(cam_infos[i],Master))
+	  {
+	      opened = true;
+	  }
+	  else
           {
               RTT::log(RTT::Error) << "Failed to open firewire Camera" <<  RTT::endlog();
               return false;
           }
+      }
     }
+    if( !opened )
+    {
+	RTT::log(RTT::Error) << "Did not find camera with id " << cam_id <<  RTT::endlog();
+	return false;
+    }
+    
     cam_interface = camera;
     
     camera->setAttrib(int_attrib::IsoSpeed, 400);
