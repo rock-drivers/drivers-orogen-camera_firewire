@@ -31,6 +31,8 @@ Orocos.run 'camera_firewire_test' do
 
   sleep 1
 
+  left_camera.grab_mode = :Continuously
+  right_camera.grab_mode = :Continuously
   left_camera.configure
   right_camera.configure
   	
