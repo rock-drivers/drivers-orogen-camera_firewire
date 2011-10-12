@@ -5,8 +5,8 @@ include Orocos
 Orocos::CORBA.name_service = "asguard.local"
 Orocos.initialize
 
-left_camera = TaskContext.get 'camera_firewire_left'  
-right_camera = TaskContext.get 'camera_firewire_right'
+left_camera = TaskContext.get 'camera_left'  
+right_camera = TaskContext.get 'camera_right'
 
 #left_camera.setIntAttrib(:ExposureValue, 150)
 #left_camera.setIntAttrib(:GainValue, 16)
