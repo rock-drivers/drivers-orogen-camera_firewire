@@ -26,7 +26,7 @@ CameraTask::CameraTask(std::string const& name)
     _whitebalance_red = 650;
     _gamma = true;
     _acquisition_frame_count = 200;
-    _whitebalance_mode = "auto_once";
+    _whitebalance_mode = "manual";
 }
 
 CameraTask::~CameraTask()
