@@ -24,7 +24,7 @@ CameraTask::CameraTask(std::string const& name)
     _camera_format = MODE_BAYER_BGGR;
     _whitebalance_blue = 580;
     _whitebalance_red = 650;
-    _gamma = true;
+    _gamma = false;
     _acquisition_frame_count = 200;
     _whitebalance_mode = "manual";
 }
