@@ -27,6 +27,8 @@ CameraTask::CameraTask(std::string const& name)
     _gamma = false;
     _acquisition_frame_count = 200;
     _whitebalance_mode = "manual";
+    _trigger_mode = "sync_in1";
+    _frame_start_trigger_event = "EdgeRising";
 }
 
 CameraTask::~CameraTask()
