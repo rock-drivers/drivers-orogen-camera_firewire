@@ -68,9 +68,16 @@ bool CameraTask::configureHook()
     if (! CameraTaskBase::configureHook())
       return false;
 
-    timestampEstimator = new aggregator::TimestampEstimator
-	(base::Time::fromSeconds(20),
-	 base::Time::fromSeconds(1.0/_fps), 2);
+    if (_fps.value() != 0)
+    {
+        timestampEstimator = new aggregator::TimestampEstimator
+            (base::Time::fromSeconds(20), base::Time::fromSeconds(1.0/_fps), 2);
+    }
+    else
+    {
+        timestampEstimator = new aggregator::TimestampEstimator
+            (base::Time::fromSeconds(20), 2);
+    }
 
     RTT::log(RTT::Info) << "requested firewire camera id: " << _camera_id <<  RTT::endlog();
 
