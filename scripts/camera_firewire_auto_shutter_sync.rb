@@ -8,7 +8,7 @@ Orocos.initialize
 left_camera = TaskContext.get 'camera_left'  
 right_camera = TaskContext.get 'camera_right'
 
-left_camera.setIntAttrib(:ExposureValue, 150)
+#left_camera.setIntAttrib(:ExposureValue, 150)
 #left_camera.setIntAttrib(:GainValue, 16)
 #left_camera.setIntAttrib(:WhitebalValueRed, 580)
 #left_camera.setIntAttrib(:WhitebalValueBlue, 650)
@@ -26,7 +26,7 @@ left_camera.setEnumAttrib(:ExposureModeToAuto)
 #left_camera.setDoubleAttrib(:FrameRate, 30)
 #left_camera.setHDRValues(120,60,60,40)
 
-right_camera.setIntAttrib(:ExposureValue, 150)
+#right_camera.setIntAttrib(:ExposureValue, 150)
 #right_camera.setIntAttrib(:GainValue, 16)
 #right_camera.setIntAttrib(:WhitebalValueRed, 580)
 #right_camera.setIntAttrib(:WhitebalValueBlue, 650)
