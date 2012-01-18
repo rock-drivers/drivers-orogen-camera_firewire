@@ -5,6 +5,7 @@ using_library "camera_firewire"
 using_library "camera_interface"
 using_task_library "camera_base"
 import_types_from "base"
+import_types_from "aggregator"
 
 task_context 'CameraTask' do
     subclasses "camera_base::Task"
