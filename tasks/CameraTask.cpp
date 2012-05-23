@@ -33,9 +33,12 @@ CameraTask::CameraTask(std::string const& name)
 
 CameraTask::~CameraTask()
 {
-    if(camera)
+    //note camera is also saved in cam_interface,
+    //which is deleted by the superclass
+    if(cam_interface)
     {
-        delete camera;
+        delete cam_interface;
+        cam_interface = NULL;
         camera = NULL;
     }
     if(timestampEstimator)
