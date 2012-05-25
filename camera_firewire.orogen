@@ -9,6 +9,7 @@ import_types_from "aggregator"
 
 task_context 'CameraTask' do
     subclasses "camera_base::Task"
+    needs_configuration
 
     input_port 'trigger_timestamp', '/base/Time'
 
