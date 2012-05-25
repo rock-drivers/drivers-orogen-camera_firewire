@@ -88,9 +88,14 @@ bool CameraTask::configureHook()
     RTT::log(RTT::Info) << "creating new dc1394 bus device...";
     // create a new firewire bus device
     dc_device = dc1394_new();
+    if(!dc_device)
+    {
+	RTT::log(RTT::Error) << "failed." <<  RTT::endlog();
+    }
     RTT::log(RTT::Info) << "done." <<  RTT::endlog();
 
-    camera->setDevice(dc_device);
+    if(!camera->setDevice(dc_device))
+	return false;
 
     //find and display all cameras
     std::vector<CamInfo> cam_infos ;
@@ -128,7 +133,11 @@ bool CameraTask::configureHook()
     
     cam_interface = camera;
     
-    camera->setAttrib(int_attrib::IsoSpeed, 400);
+    if(!camera->setAttrib(int_attrib::IsoSpeed, 400))
+    {
+	RTT::log(RTT::Error) << "Failed to set IsoSpeed for camera " << cam_id <<  RTT::endlog();
+	return false;
+    }
     
     if(camera->isAttribAvail(int_attrib::HDRValue))
         setHDRValues(_hdr_voltage_1, _hdr_voltage_2, _hdr_voltage_3, _hdr_voltage_4);
