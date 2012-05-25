@@ -15,5 +15,5 @@
   <export>
     <cpp cflags="" lflags="" />
   </export>
-  <tags>needs_opt</tags>
+  <tags>stable</tags>
 </package>
