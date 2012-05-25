@@ -91,6 +91,7 @@ bool CameraTask::configureHook()
     if(!dc_device)
     {
 	RTT::log(RTT::Error) << "failed." <<  RTT::endlog();
+	return false;
     }
     RTT::log(RTT::Info) << "done." <<  RTT::endlog();
 
