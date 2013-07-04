@@ -11,7 +11,7 @@ using namespace base::samples::frame;
 
 CameraTask::CameraTask(std::string const& name)
     : CameraTaskBase(name)
-    , camera(new camera::CamFireWire)
+    , camera(NULL)
     , timestampEstimator(0)
 {
     // default properties
@@ -68,6 +68,8 @@ void CameraTask::onRetrieveNewFrame(base::samples::frame::Frame & frame)
 
 bool CameraTask::configureHook()
 {
+    camera = new camera::CamFireWire;
+
     if (! CameraTaskBase::configureHook())
       return false;
 
