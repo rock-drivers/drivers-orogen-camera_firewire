@@ -35,20 +35,3 @@ task_context 'CameraTask' do
     fd_driven
 end
 
-task_context 'CameraViewerTask' do
-#   needs_configuration
-    input_port 'frame', ro_ptr('base::samples::frame::Frame')
-end
-
-deployment "camera_firewire_test" do
-    left_cam = task('camera_firewire_left', 'camera_firewire::CameraTask').
-       periodic 0.016
-    left_cam.camera_id = "2892819639939303"
-
-    right_cam = task('camera_firewire_right', 'camera_firewire::CameraTask').
-        periodic 0.016
-    right_cam.camera_id = "2892819639939304"
-
-    add_default_logger
-end
-
