@@ -141,10 +141,6 @@ bool CameraTask::configureHook()
 	    RTT::log(RTT::Error) << "Failed to set OperationMode for camera " << cam_id <<  RTT::endlog();
 	    return false;
     }
-    else
-    {
-        std::cout << "OK" << std::endl;
-    }
     
     if(!camera->setAttrib(int_attrib::IsoSpeed, _isochronous_speed.value()))
     {
