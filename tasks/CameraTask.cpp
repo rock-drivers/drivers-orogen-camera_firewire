@@ -130,16 +130,26 @@ bool CameraTask::configureHook()
     }
     if( !opened )
     {
-	RTT::log(RTT::Error) << "Did not find camera with id " << cam_id <<  RTT::endlog();
-	return false;
+	    RTT::log(RTT::Error) << "Did not find camera with id " << cam_id <<  RTT::endlog();
+	    return false;
     }
     
     cam_interface = camera;
     
-    if(!camera->setAttrib(int_attrib::IsoSpeed, 400))
+    if(!camera->setAttrib(int_attrib::OperationMode, _operation_mode.value()))
     {
-	RTT::log(RTT::Error) << "Failed to set IsoSpeed for camera " << cam_id <<  RTT::endlog();
-	return false;
+	    RTT::log(RTT::Error) << "Failed to set OperationMode for camera " << cam_id <<  RTT::endlog();
+	    return false;
+    }
+    else
+    {
+        std::cout << "OK" << std::endl;
+    }
+    
+    if(!camera->setAttrib(int_attrib::IsoSpeed, _isochronous_speed.value()))
+    {
+	    RTT::log(RTT::Error) << "Failed to set IsoSpeed for camera " << cam_id <<  RTT::endlog();
+	    return false;
     }
     
     if(camera->isAttribAvail(int_attrib::HDRValue))

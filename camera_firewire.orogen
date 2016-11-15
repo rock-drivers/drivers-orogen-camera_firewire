@@ -24,6 +24,12 @@ task_context 'CameraTask' do
         doc 'hdr kneepoint2 voltage level 1 [0..255]'
     property('hdr_voltage_4', 'int', 0).
         doc 'hdr kneepoint2 voltage level 2 [0..255]'
+    
+    # Firewire mode settings
+    property('operation_mode', 'char').
+        doc 'Set the firewire operation mode, possible values are A and B'
+    property('isochronous_speed', 'int', 400).
+        doc 'Set the firewire isochronous speed'
 
     operation('setHDRValues').
         returns('bool').
