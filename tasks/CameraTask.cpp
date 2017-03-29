@@ -55,11 +55,13 @@ CameraTask::~CameraTask()
  */
 void CameraTask::onRetrieveNewFrame(base::samples::frame::Frame & frame)
 {
-    base::Time trigger_ts;
-    while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
-        timestampEstimator->updateReference(trigger_ts);
-
-    frame.time = timestampEstimator->update(frame.time);
+    if(_trigger_timestamp.connected())
+    {
+        base::Time trigger_ts;
+        while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
+            timestampEstimator->updateReference(trigger_ts);
+        frame.time = timestampEstimator->update(frame.time);
+    }
 }
 
 /// The following lines are template definitions for the various state machine
@@ -73,10 +75,10 @@ bool CameraTask::configureHook()
     if (! CameraTaskBase::configureHook())
       return false;
 
-    if (_fps.value() != 0)
+    if (_fps.value() != 0 && _image_count.value() != 0)
     {
         timestampEstimator = new aggregator::TimestampEstimator
-            (base::Time::fromSeconds(20), base::Time::fromSeconds(1.0/_fps), 2);
+            (base::Time::fromSeconds(20), base::Time::fromSeconds(1.0/_fps/(float)_image_count), 2);
     }
     else
     {
