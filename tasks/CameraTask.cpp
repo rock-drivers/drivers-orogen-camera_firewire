@@ -62,6 +62,13 @@ void CameraTask::onRetrieveNewFrame(base::samples::frame::Frame & frame)
             timestampEstimator->updateReference(trigger_ts);
         frame.time = timestampEstimator->update(frame.time);
     }
+
+    // apply new shutter value if available
+    int newShutterValue;
+    if (_shutter_value.connected() && _shutter_value.read(newShutterValue) == RTT::NewData)
+    {
+        camera->setAttrib(camera::int_attrib::ShutterValue,newShutterValue);
+    }
 }
 
 /// The following lines are template definitions for the various state machine
