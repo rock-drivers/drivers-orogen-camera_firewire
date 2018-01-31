@@ -55,11 +55,20 @@ CameraTask::~CameraTask()
  */
 void CameraTask::onRetrieveNewFrame(base::samples::frame::Frame & frame)
 {
-    base::Time trigger_ts;
-    while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
-        timestampEstimator->updateReference(trigger_ts);
+    if(_trigger_timestamp.connected())
+    {
+        base::Time trigger_ts;
+        while (_trigger_timestamp.read(trigger_ts) == RTT::NewData)
+            timestampEstimator->updateReference(trigger_ts);
+        frame.time = timestampEstimator->update(frame.time);
+    }
 
-    frame.time = timestampEstimator->update(frame.time);
+    // apply new shutter value if available
+    int newShutterValue;
+    if (_shutter_value.connected() && _shutter_value.read(newShutterValue) == RTT::NewData)
+    {
+        camera->setAttrib(camera::int_attrib::ShutterValue,newShutterValue);
+    }
 }
 
 /// The following lines are template definitions for the various state machine
@@ -73,10 +82,10 @@ bool CameraTask::configureHook()
     if (! CameraTaskBase::configureHook())
       return false;
 
-    if (_fps.value() != 0)
+    if (_fps.value() != 0 && _image_count.value() != 0)
     {
         timestampEstimator = new aggregator::TimestampEstimator
-            (base::Time::fromSeconds(20), base::Time::fromSeconds(1.0/_fps), 2);
+            (base::Time::fromSeconds(20), base::Time::fromSeconds(1.0/_fps/(float)_image_count), 2);
     }
     else
     {
@@ -84,7 +93,7 @@ bool CameraTask::configureHook()
             (base::Time::fromSeconds(20), 2);
     }
 
-    RTT::log(RTT::Info) << "requested firewire camera id: " << _camera_id <<  RTT::endlog();
+    RTT::log(RTT::Info) << "requested firewire camera id: " << _camera_id.value() <<  RTT::endlog();
 
     dc1394_t *dc_device;
     RTT::log(RTT::Info) << "creating new dc1394 bus device...";
@@ -114,7 +123,7 @@ bool CameraTask::configureHook()
     bool opened = false;
     for(unsigned int i = 0 ; i<cam_infos.size() ; i++)
     {
-      RTT::log(RTT::Info) << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id <<  RTT::endlog();
+      RTT::log(RTT::Info) << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id.value() <<  RTT::endlog();
       if(cam_infos[i].unique_id == strtoul(cam_id.c_str(),NULL,0))
       {
           if(camera->open(cam_infos[i],Master))

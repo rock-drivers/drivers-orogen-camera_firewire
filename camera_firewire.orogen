@@ -12,6 +12,7 @@ task_context 'CameraTask' do
     needs_configuration
 
     input_port 'trigger_timestamp', '/base/Time'
+    input_port 'shutter_value', 'int'
 
     # To activate hdr you have to set the first two voltage levels or all four.
     # Which meens using one kneepoint or two. Set all to zero meens hdr is disabled.
@@ -30,6 +31,8 @@ task_context 'CameraTask' do
         doc 'Set the firewire operation mode, possible values are A and B'
     property('isochronous_speed', 'int', 400).
         doc 'Set the firewire isochronous speed'
+    property('image_count', 'int', 1).
+        doc 'Images per packet, eg. 2 for BB2, 3 for BB3'
 
     operation('setHDRValues').
         returns('bool').
