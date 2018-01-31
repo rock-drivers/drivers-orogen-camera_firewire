@@ -93,7 +93,7 @@ bool CameraTask::configureHook()
             (base::Time::fromSeconds(20), 2);
     }
 
-    RTT::log(RTT::Info) << "requested firewire camera id: " << _camera_id <<  RTT::endlog();
+    RTT::log(RTT::Info) << "requested firewire camera id: " << _camera_id.value() <<  RTT::endlog();
 
     dc1394_t *dc_device;
     RTT::log(RTT::Info) << "creating new dc1394 bus device...";
@@ -123,7 +123,7 @@ bool CameraTask::configureHook()
     bool opened = false;
     for(unsigned int i = 0 ; i<cam_infos.size() ; i++)
     {
-      RTT::log(RTT::Info) << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id <<  RTT::endlog();
+      RTT::log(RTT::Info) << "cam's uid is " << cam_infos[i].unique_id << " and desired id is " << _camera_id.value() <<  RTT::endlog();
       if(cam_infos[i].unique_id == strtoul(cam_id.c_str(),NULL,0))
       {
           if(camera->open(cam_infos[i],Master))
