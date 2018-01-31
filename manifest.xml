@@ -2,6 +2,7 @@
   <description brief="orocos deployment which imports camera frames from a firewire camera and displays them">
   </description>
   <author>Christopher Gaudig/christopher.gaudig@dfki.de</author>
+  <maintainer>Martin Azkarate/Martin.Azkarate@esa.int</maintainer>
   <license></license>
   <url>http://</url>
   <logo>http://</logo>
