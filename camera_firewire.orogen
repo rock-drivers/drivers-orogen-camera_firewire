@@ -7,8 +7,7 @@ using_task_library "camera_base"
 import_types_from "base"
 import_types_from "aggregator"
 
-task_context 'CameraTask' do
-    subclasses "camera_base::Task"
+task_context 'CameraTask', subclasses: "camera_base::Task" do
     needs_configuration
 
     input_port 'trigger_timestamp', '/base/Time'
